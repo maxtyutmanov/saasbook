@@ -8,6 +8,17 @@ class MoviesController < ApplicationController
 
   def index
     @movies = Movie.all
+    
+    
+    if (params[:sort_by] == "title")
+      @movies.sort! { |m1,m2| m1.title <=> m2.title } 
+      @title_style = :hilite
+    end
+    
+    if (params[:sort_by] == "release_date")
+      @movies.sort! { |m1,m2| m1.release_date <=> m2.release_date }
+      @release_date_style = :hilite
+    end
   end
 
   def new
