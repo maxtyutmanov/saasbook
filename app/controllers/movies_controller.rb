@@ -7,18 +7,26 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @movies = Movie.all
+    movie_filters = {}
     
+    @selected_ratings = params[:ratings] || {}
+    #filter movies by rating only if refresh button was pressed
+    movie_filters[:rating] = @selected_ratings.keys if params[:commit] == 'Refresh'
     
     if (params[:sort_by] == "title")
-      @movies.sort! { |m1,m2| m1.title <=> m2.title } 
+      @movies = Movie.find(:all, { :order => "title" }, :conditions => movie_filters )
       @title_style = :hilite
+    elsif (params[:sort_by] == "release_date")
+      @movies = Movie.find(:all, { :order => "release_date" }, :conditions => movie_filters )
+      @release_date_style = :hilite
+    else
+      @movies = Movie.find(:all, :conditions => movie_filters )
     end
     
-    if (params[:sort_by] == "release_date")
-      @movies.sort! { |m1,m2| m1.release_date <=> m2.release_date }
-      @release_date_style = :hilite
-    end
+    @all_ratings = Movie.all_ratings
+    
+    @ratings_qs_hash = {:commit => params[:commit]}
+    @selected_ratings.keys.each { |r| @ratings_qs_hash["ratings[#{r}]"] = 1 }
   end
 
   def new
